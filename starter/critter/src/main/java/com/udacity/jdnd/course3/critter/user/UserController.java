@@ -2,11 +2,14 @@ package com.udacity.jdnd.course3.critter.user;
 
 import com.udacity.jdnd.course3.critter.entity.Customer;
 import com.udacity.jdnd.course3.critter.entity.Employee;
-import com.udacity.jdnd.course3.critter.helper.Utils;
+import com.udacity.jdnd.course3.critter.utility.Convert;
 import com.udacity.jdnd.course3.critter.service.CustomerService;
 import com.udacity.jdnd.course3.critter.service.EmployeeService;
+import com.udacity.jdnd.course3.critter.utility.DataNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.DayOfWeek;
 import java.util.List;
@@ -36,18 +39,35 @@ public class UserController {
         customer.setPhoneNumber(customerDTO.getPhoneNumber());
         customer.setNotes(customerDTO.getNotes());
         List<Long> petIds = customerDTO.getPetIds();
-        return Utils.convertToCustomerDTO(customerService.save(customer, petIds));
+
+        CustomerDTO customerObj = null;
+        try {
+            customerObj = Convert.toCustomerDTO(customerService.save(customer, petIds));
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer does not save, an error occurred", e);
+        }
+
+        return customerObj;
     }
 
     @GetMapping("/customer")
     public List<CustomerDTO> getAllCustomers() {
         List<Customer> customers = customerService.findAll();
-        return customers.stream().map(Utils::convertToCustomerDTO).collect(Collectors.toList());
+        return customers.stream().map(Convert::toCustomerDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/customer/pet/{petId}")
     public CustomerDTO getOwnerByPet(@PathVariable long petId) {
-        return Utils.convertToCustomerDTO(customerService.findByPetId(petId));
+        Customer customer = null;
+        try {
+            customer = customerService.findByPetId(petId);
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Owner does not exists with id " + petId, e);
+        }
+
+        return Convert.toCustomerDTO(customer);
     }
 
     @PostMapping("/employee")
@@ -56,22 +76,43 @@ public class UserController {
         employee.setName(employeeDTO.getName());
         employee.setSkills(employeeDTO.getSkills());
         employee.setDaysAvailable(employeeDTO.getDaysAvailable());
-        return Utils.convertToEmployeeDTO(employeeService.save(employee));
+
+        EmployeeDTO employeeObj = null;
+        try {
+            employeeObj = Convert.toEmployeeDTO(employeeService.save(employee));
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Employee does not save, an error occurred", e);
+        }
+        return employeeObj;
     }
 
     @PostMapping("/employee/{employeeId}")
     public EmployeeDTO getEmployee(@PathVariable long employeeId) {
-        return Utils.convertToEmployeeDTO(employeeService.findById(employeeId));
+        Employee employee = null;
+        try {
+            employee = employeeService.findById(employeeId);
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Employee does not exists with id " + employeeId, e);
+        }
+
+        return Convert.toEmployeeDTO(employee);
     }
 
     @PutMapping("/employee/{employeeId}")
     public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) {
-        employeeService.setAvailability(daysAvailable, employeeId);
+        try {
+            employeeService.setAvailability(daysAvailable, employeeId);
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Employee does not exists with id " + employeeId, e);
+        }
     }
 
     @GetMapping("/employee/availability")
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
         List<Employee> employees = employeeService.findByService(employeeDTO.getDate(), employeeDTO.getSkills());
-        return employees.stream().map(Utils::convertToEmployeeDTO).collect(Collectors.toList());
+        return employees.stream().map(Convert::toEmployeeDTO).collect(Collectors.toList());
     }
 }

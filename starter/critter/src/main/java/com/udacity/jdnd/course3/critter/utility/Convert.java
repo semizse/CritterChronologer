@@ -1,4 +1,4 @@
-package com.udacity.jdnd.course3.critter.helper;
+package com.udacity.jdnd.course3.critter.utility;
 
 import com.udacity.jdnd.course3.critter.entity.Customer;
 import com.udacity.jdnd.course3.critter.entity.Employee;
@@ -12,8 +12,8 @@ import com.udacity.jdnd.course3.critter.user.EmployeeDTO;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Utils {
-    public static CustomerDTO convertToCustomerDTO(Customer customer) {
+public class Convert {
+    public static CustomerDTO toCustomerDTO(Customer customer) {
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setId(customer.getId());
         customerDTO.setName(customer.getName());
@@ -24,7 +24,7 @@ public class Utils {
         return customerDTO;
     }
 
-    public static EmployeeDTO convertToEmployeeDTO(Employee employee) {
+    public static EmployeeDTO toEmployeeDTO(Employee employee) {
         EmployeeDTO employeeDTO = new EmployeeDTO();
         employeeDTO.setId(employee.getId());
         employeeDTO.setName(employee.getName());
@@ -33,7 +33,7 @@ public class Utils {
         return employeeDTO;
     }
 
-    public static ScheduleDTO convertToScheduleDTO(Schedule schedule) {
+    public static ScheduleDTO toScheduleDTO(Schedule schedule) {
         ScheduleDTO scheduleDTO = new ScheduleDTO();
         scheduleDTO.setId(schedule.getId());
         scheduleDTO.setEmployeeIds(schedule.getEmployees().stream().map(Employee::getId).collect(Collectors.toList()));
@@ -43,7 +43,7 @@ public class Utils {
         return scheduleDTO;
     }
 
-    public static PetDTO convertToPetDTO(Pet pet) {
+    public static PetDTO toPetDTO(Pet pet) {
         PetDTO petDTO = new PetDTO();
         petDTO.setId(pet.getId());
         petDTO.setName(pet.getName());
